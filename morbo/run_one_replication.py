@@ -37,7 +37,7 @@ from morbo.trust_region import TurboHParams
 from torch import Tensor
 
 from morbo.problems.rover import get_rover_fn
-from morbo.problems.pena import Pena_func, Pena_constr, Pena_constant_constraints
+from morbo.problems.pena import Pena_func, Pena_constr_val, Pena_constant_constraints
 from morbo.benchmark_function import (
     BenchmarkFunction,
 )
@@ -185,7 +185,7 @@ def run_one_replication(
         # ---------------------------------------------------------
         inconst, eqconst = Pena_constant_constraints()
         f = Pena_func
-        input_constraints = Pena_constr
+        input_constraints = Pena_constr_val
         num_objectives = 3
         num_outputs = 3
 
