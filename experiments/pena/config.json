@@ -1,0 +1,14 @@
+{
+    "dim": 17,
+    "max_evals": 200,
+    "evalfn": "pena",
+    "n_initial_points": 20,
+    "batch_size": 1,
+    "min_tr_size": 4,
+    "max_reference_point": [
+      -170,
+      0,
+      0
+    ],
+    "verbose": true
+  }

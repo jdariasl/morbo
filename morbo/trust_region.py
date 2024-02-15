@@ -15,7 +15,7 @@ from abc import abstractmethod, abstractproperty, ABC
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import torch
-from botorch.acquisition.objective import AcquisitionObjective
+from botorch.acquisition.objective import MCAcquisitionObjective
 from botorch.models.transforms.input import (
     ChainedInputTransform,
     Normalize,
@@ -27,7 +27,6 @@ from botorch.utils.multi_objective.box_decompositions.dominated import (
 )
 from botorch.utils.multi_objective.pareto import is_non_dominated
 from botorch.utils.objective import get_objective_weights_transform
-from botorch.utils.sampling import draw_sobol_normal_samples
 from botorch.utils.transforms import normalize
 from morbo.utils import (
     get_constraint_slack_and_feasibility,
@@ -204,7 +203,7 @@ class TrustRegion(ABC, Module):
         Y_init: Tensor,
         bounds: Tensor,
         tr_hparams: TurboHParams,
-        objective: AcquisitionObjective,
+        objective: MCAcquisitionObjective,
         constraints: Optional[List[Callable[[Tensor], Tensor]]] = None,
         extra_buffers: Optional[Dict[str, Union[None, Tensor]]] = None,
         **kwargs,
@@ -470,7 +469,6 @@ class TrustRegion(ABC, Module):
         pass
 
     def _update_training_data(self, X_all: Tensor, Y_all: Tensor) -> None:
-
         X_all_normalized = normalize(X=X_all, bounds=self.bounds)
 
         if self.tr_hparams.trim_trace:

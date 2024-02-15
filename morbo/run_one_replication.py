@@ -7,7 +7,7 @@
 r"""
 Run one replication.
 """
-from typing import Callable, Dict, List, Optional, Union
+from typing import Callable, List, Optional
 import time
 import torch
 import numpy as np
@@ -28,7 +28,7 @@ from botorch.test_functions.multi_objective import (
 from botorch.utils.multi_objective.box_decompositions.dominated import (
     DominatedPartitioning,
 )
-from botorch.utils.sampling import draw_sobol_samples
+from botorch.utils.sampling import draw_sobol_samples, get_polytope_samples
 from morbo.gen import (
     TS_select_batch_MORBO,
 )
@@ -37,6 +37,7 @@ from morbo.trust_region import TurboHParams
 from torch import Tensor
 
 from morbo.problems.rover import get_rover_fn
+from morbo.problems.pena import Pena_func, Pena_constr, Pena_constant_constraints
 from morbo.benchmark_function import (
     BenchmarkFunction,
 )
@@ -116,6 +117,7 @@ def run_one_replication(
     tkwargs = {"dtype": dtype, "device": device}
     bounds = torch.empty((2, dim), dtype=dtype, device=device)
     constraints = None
+    input_constraints = None
     objective = None
 
     if evalfn == "ackley":
@@ -156,6 +158,37 @@ def run_one_replication(
         f, bounds = get_rover_fn(
             dim, device=device, dtype=dtype, force_goal=False, force_start=True
         )
+    elif evalfn == "pena":
+        bound = np.array(
+            [
+                0.4,
+                0.4,
+                0.4,
+                0.05,
+                0.22,
+                1,
+                0.04,
+                0.08,
+                1,
+                0.0065,
+                0.06,
+                0.04,
+                0.05,
+                0.1,
+                0.15,
+                0.2,
+                1,
+            ]
+        )
+        lu, ub = torch.zeros(17), torch.as_tensor(bound)
+        bounds = torch.stack((lu, ub), dim=0)
+        # ---------------------------------------------------------
+        inconst, eqconst = Pena_constant_constraints()
+        f = Pena_func
+        input_constraints = Pena_constr
+        num_objectives = 3
+        num_outputs = 3
+
     elif evalfn == "WeldedBeam":
         problem = WeldedBeam(negate=False)
         bounds = problem.bounds.to(**tkwargs)
@@ -270,6 +303,7 @@ def run_one_replication(
         bounds=bounds,
         tr_hparams=tr_hparams,
         constraints=constraints,
+        input_constraints=input_constraints,
         objective=objective,
     )
 
@@ -290,7 +324,16 @@ def run_one_replication(
 
     # Create initial points
     n_points = min(n_initial_points, max_evals - trbo_state.n_evals)
-    X_init = draw_sobol_samples(bounds=bounds, n=n_points, q=1).squeeze(1)
+    if evalfn == "pena":
+        X_init = get_polytope_samples(
+            n=n_points,
+            bounds=bounds,
+            inequality_constraints=inconst,
+            equality_constraints=eqconst,
+        ).squeeze(1)
+    else:
+        X_init = draw_sobol_samples(bounds=bounds, n=n_points, q=1).squeeze(1)
+
     Y_init = f(X_init)
     trbo_state.update(
         X=X_init,

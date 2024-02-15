@@ -11,17 +11,14 @@ import dataclasses
 import math
 import time
 from enum import Enum
-from typing import Callable, Dict, List, Optional, OrderedDict, Tuple, Union
+from typing import Dict, List, Optional, OrderedDict, Tuple, Union
 
 import torch
 from botorch.acquisition.multi_objective.objective import IdentityMCMultiOutputObjective
-from botorch.acquisition.objective import IdentityMCObjective, MCAcquisitionObjective
+from botorch.acquisition.objective import IdentityMCObjective, AcquisitionObjective
 from botorch.exceptions import BotorchError
 from botorch.models.model import Model
-from botorch.models.transforms.input import (
-    ChainedInputTransform,
-    Normalize,
-)
+from botorch.models.transforms.input import Normalize
 from botorch.models.transforms.outcome import Standardize
 from botorch.utils.constraints import get_outcome_constraint_transforms
 from botorch.utils.multi_objective.box_decompositions.box_decomposition_list import (
@@ -150,8 +147,9 @@ class TRBOState(Module):
         bounds: Tensor,
         max_evals: int,
         tr_hparams: TurboHParams,
-        objective: Optional[MCAcquisitionObjective] = None,
+        objective: Optional[AcquisitionObjective] = None,
         constraints: Optional[Tuple[Tensor, Tensor]] = None,
+        input_constraints=None,
         num_metrics: Optional[int] = None,
         tr_gen_statuses: Optional[List[TRGenStatus]] = None,
     ) -> None:
@@ -188,6 +186,7 @@ class TRBOState(Module):
         if tr_hparams.n_initial_points < tr_hparams.min_tr_size:
             raise ValueError("`n_initial_points` must be greater than `min_tr_size`!")
         self.constraints_spec = constraints
+        self.input_constraints = input_constraints
         if constraints is not None:
             self.constraints = get_outcome_constraint_transforms(constraints)
         else:
@@ -368,6 +367,11 @@ class TRBOState(Module):
                 # we select the point with minimum total violation.
             else:
                 is_feas = torch.ones(Y_all.shape[0], dtype=bool, device=Y.device)
+            if self.input_constraints is not None:
+                feas_input = self.input_constraints(
+                    X_all
+                )  # Revisar si X_all está normalizado
+                is_feas = torch.logical_and(is_feas, ~feas_input)
             pareto_mask = is_non_dominated(self.objective(Y_all)[is_feas])
             self.pareto_X = X_all[is_feas][pareto_mask]
             self.pareto_Y = Y_all[is_feas][pareto_mask]

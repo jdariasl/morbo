@@ -237,6 +237,10 @@ def TS_select_batch_MORBO(trbo_state: TRBOState) -> CandidateSelectionOutput:
                     len(f_obj), device=tkwargs["device"], dtype=torch.bool
                 )
                 violation = torch.zeros(len(f_obj), **tkwargs)
+            if trbo_state.input_constraints is not None:
+                feas_input = trbo_state.input_constraints(X_cand_unnormalized)
+                feas = torch.logical_and(feas, ~feas_input)
+                violation[~feas_input] = violation[~feas_input] - 10
 
             # Remove the pending points and make sure we don't pick them
             if len(inds_next_in_tr) > 0:
@@ -290,6 +294,7 @@ def TS_select_batch_MORBO(trbo_state: TRBOState) -> CandidateSelectionOutput:
                             ref_point=ref_point,
                             Y=pareto_Y_better_than_ref,
                         )
+
                         # create a deterministic model that returns TS samples that we have
                         # already drawn (with an added dim for q=1). This lets us
                         # batch-evaluate the HVI using samples from the joint posterior
