@@ -368,11 +368,9 @@ class TRBOState(Module):
             else:
                 is_feas = torch.ones(Y_all.shape[0], dtype=bool, device=Y.device)
             if self.input_constraints is not None:
-                input_constraint_value = self.input_constraints(
-                    X_all
-                )  # Revisar si X_all está normalizado
+                input_constraint_value = self.input_constraints(X_all)
                 feas_input = (input_constraint_value >= 0.0).all(dim=-1)
-                is_feas = torch.logical_and(is_feas, ~feas_input)
+                is_feas = is_feas & feas_input
             pareto_mask = is_non_dominated(self.objective(Y_all)[is_feas])
             self.pareto_X = X_all[is_feas][pareto_mask]
             self.pareto_Y = Y_all[is_feas][pareto_mask]

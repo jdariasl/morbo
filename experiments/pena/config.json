@@ -1,6 +1,6 @@
 {
     "dim": 17,
-    "max_evals": 200,
+    "max_evals": 30,
     "evalfn": "pena",
     "n_initial_points": 20,
     "batch_size": 1,

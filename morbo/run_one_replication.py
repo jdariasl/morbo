@@ -188,7 +188,22 @@ def run_one_replication(
         input_constraints = Pena_constr_val
         num_objectives = 3
         num_outputs = 3
-
+        constraints = (
+            torch.tensor(
+                [
+                    [0.0, 0.0, 1.0],
+                    [0.0, 0.0, -1.0],
+                    [0.0, 1.0, 0.0],
+                    [0.0, -1.0, 0.0],
+                    [1.0, 0.0, 0.0],
+                ],
+                dtype=dtype,
+                device=device,
+            ),
+            torch.tensor(
+                [[-14.001], [20], [-0.9501], [2.0], [143]], dtype=dtype, device=device
+            ),
+        )
     elif evalfn == "WeldedBeam":
         problem = WeldedBeam(negate=False)
         bounds = problem.bounds.to(**tkwargs)
@@ -374,7 +389,7 @@ def run_one_replication(
         all_tr_indices.extend(tr_indices.tolist())
         trbo_state.tabu_set.log_iteration()
         Y_cand = f(X_cand)
-
+        print(f"Y_cand: {Y_cand}")
         # Log TR info
         for i, tr in enumerate(trbo_state.trust_regions):
             inds = torch.cat(

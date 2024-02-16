@@ -242,8 +242,8 @@ def TS_select_batch_MORBO(trbo_state: TRBOState) -> CandidateSelectionOutput:
                     X_cand_unnormalized
                 )
                 feas_input = (input_constraint_value >= 0.0).all(dim=-1)
-                feas = torch.logical_and(feas, ~feas_input)
-                violation_input = torch.clamp(input_constraint_value, 0.0).sum(dim=-1)
+                feas = feas & feas_input
+                violation_input = torch.clamp(-input_constraint_value, 0.0).sum(dim=-1)
                 violation = violation + violation_input
 
             # Remove the pending points and make sure we don't pick them

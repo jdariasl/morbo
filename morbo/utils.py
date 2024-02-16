@@ -16,7 +16,6 @@ from botorch.models.model import Model
 from botorch.models.model_list_gp_regression import ModelListGP
 from botorch.models.transforms.input import InputTransform
 from botorch.models.transforms.outcome import OutcomeTransform
-from botorch.optim.fit import fit_gpytorch_torch
 from botorch.utils.sampling import draw_sobol_samples
 from gpytorch import settings as gpytorch_settings
 from gpytorch.constraints import GreaterThan, Interval
