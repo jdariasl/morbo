@@ -37,7 +37,11 @@ from morbo.trust_region import TurboHParams
 from torch import Tensor
 
 from morbo.problems.rover import get_rover_fn
-from morbo.problems.pena import Pena_func, Pena_constr_val, Pena_constant_constraints
+from morbo.problems.pena import (
+    Pena_func,
+    Pena_constr_val,
+    Pena_constant_constraints,
+)
 from morbo.benchmark_function import (
     BenchmarkFunction,
 )
@@ -191,17 +195,17 @@ def run_one_replication(
         constraints = (
             torch.tensor(
                 [
-                    [0.0, 0.0, 1.0],
                     [0.0, 0.0, -1.0],
-                    [0.0, 1.0, 0.0],
+                    [0.0, 0.0, 1.0],
                     [0.0, -1.0, 0.0],
+                    [0.0, 1.0, 0.0],
                     [1.0, 0.0, 0.0],
                 ],
                 dtype=dtype,
                 device=device,
             ),
             torch.tensor(
-                [[-14.001], [20], [-0.9501], [2.0], [143]], dtype=dtype, device=device
+                [[-14.001], [20], [-0.9501], [2.0], [-143]], dtype=dtype, device=device
             ),
         )
     elif evalfn == "WeldedBeam":
@@ -389,7 +393,6 @@ def run_one_replication(
         all_tr_indices.extend(tr_indices.tolist())
         trbo_state.tabu_set.log_iteration()
         Y_cand = f(X_cand)
-        print(f"Y_cand: {Y_cand}")
         # Log TR info
         for i, tr in enumerate(trbo_state.trust_regions):
             inds = torch.cat(
