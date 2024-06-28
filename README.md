@@ -1,20 +1,9 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+# Swine Diet Design using Multi-objetive Regionalized Bayesian Optimization
 
-# Multi-Objective Bayesian Optimization over High-Dimensional Search Spaces
+This repository is an adaptation of the Multi-Objective Bayesian Optimization over High-Dimensional Search Spaces GitHub repository, which is used to apply it to the Swine Diet Design problem.
 
-This is the code associated with the paper "[Multi-Objective Bayesian Optimization over High-Dimensional Search Spaces](https://arxiv.org/abs/2109.10964)."
-
-Please cite our work if you find it useful.
-
-    @InProceedings{pmlr-v162-daulton22a,
-    title = 	 {Multi-Objective Bayesian Optimization over High-Dimensional Search Spaces},
-    author =       {Daulton, Samuel and Eriksson, David and Balandat, Maximilian and Bakshy, Eytan},
-    booktitle = 	 {Proceedings of the Thirty-Eighth Conference on Uncertainty in Artificial Intelligence},
-    year = 	 {2022},
-    series = 	 {Proceedings of Machine Learning Research},
-    publisher =    {PMLR},
-    }
-
+[MORBO](https://github.com/facebookresearch/morbo) is the code associated with the paper "[Multi-Objective Bayesian Optimization over High-Dimensional Search Spaces](https://arxiv.org/abs/2109.10964)."
 
 ## Getting started
 
